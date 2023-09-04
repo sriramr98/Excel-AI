@@ -13,16 +13,13 @@ For example
 Input
 Topic: Employee data
 No of Columns: 6
-No of Rows: 10
+No of Rows: 2
 
 Output
 Employee Salary Data
 First Name, Last Name, Employee ID, Department, Position, Salary
 John, Smith, 12345, IT, Manager, 80000
 Alice, Johnson, 67890, Sales, Associate, 50000
-Michael, Brown, 13579, HR, Coordinator, 45000
-Emily, Davis, 24680, Marketing, Specialist, 55000
-David, Wilson, 98765, Finance, Analyst, 70000
 
 If you need to give a number for a column
 Write numbers with all zeroes, do not write numbers in words such as billion or millions. For example instead of 1 million, write 1000000.
@@ -71,6 +68,7 @@ const convertDataToWritableFormat = (result = '') => {
     // first line is the title
     const title = result[0];
 
+    // every line from second line is the data
     result.slice(1);
 
     for (let line of lines) {
