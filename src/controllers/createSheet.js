@@ -1,7 +1,6 @@
 const { HumanMessagePromptTemplate, SystemMessagePromptTemplate, ChatPromptTemplate } = require('langchain/prompts');
 const { ChatOpenAI } = require('langchain/chat_models/openai')
 const { LLMChain } = require('langchain/chains')
-const csvToJson = require('convert-csv-to-json');
 
 const sheets = require('./../sheets')
 

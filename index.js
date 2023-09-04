@@ -3,7 +3,9 @@ require('dotenv').config()
 global.__basedir = __dirname;
 
 const createSheet = require('./src/controllers/createSheet')
-const publishWork = require('./src/controllers/publishWork')
+const publishWork = require('./src/controllers/publishWork');
+const validators = require('./src/validator/validators');
+const validate = require('./src/validator/validate')
 
 const app = express();
 const port = 3000;
@@ -14,7 +16,7 @@ app.get('/', (req, res) => {
   res.send('Welcome to Excel AI')
 });
 
-app.post('/createSheet', createSheet);
+app.post('/createSheet', validate(validators.createValidator) ,createSheet);
 
 app.post('/publishWork', publishWork);
 
