@@ -22,7 +22,7 @@ Alice, Johnson, 67890, Sales, Associate, 50000
 
 If you need to give a number for a column
 Write numbers with all zeroes, do not write numbers in words such as billion or millions. For example instead of 1 million, write 1000000.
-If you need to denote currency, add the currency symbol in the column title, not in the values`;
+If a column needs to contain numbers, only use numbers. Do not add any characters along with numbers. For example, instead of $80,000 use 80000`;
 
 const USER_INPUT_PROMPT = `Title: {title}\nNo of Columns: {colCount}\nNo of Rows: {rowCount}`
 
@@ -53,6 +53,7 @@ module.exports = async (req, res) => {
     })
 
     const { title, output } = convertDataToWritableFormat(result.text)
+    console.log({ title, output })
     await sheets.create(title, output, outputPath)
 
     return res.status(201).send()
@@ -65,10 +66,10 @@ const convertDataToWritableFormat = (result = '') => {
     let output = [];
 
     // first line is the title
-    const title = result[0];
+    const title = lines[0];
 
     // every line from second line is the data
-    result.slice(1);
+    lines.shift()
 
     for (let line of lines) {
         const values = line.split(',').map(val => val.trim())
