@@ -4,9 +4,10 @@ const { LLMChain } = require('langchain/chains')
 
 const sheets = require('./../sheets')
 
-const GENERATE_DATA_SYSTEM_PROMPT = `You are given a topic, number of columns and number of rows. 
-Generate a title based on the topic given in less than 20 characters in the first line. The title strictly cannot go beyond 20 characters
+const GENERATE_DATA_SYSTEM_PROMPT = `You are given a topic, number of columns and number of rows. Your only goal is to generate data based on the given topic, number of columns and rows.
+Generate a JSON output which will be converted to CSV. Strictly follow the number of cols ( keys in json ) and no of rows (number of entries in JSON)
 From the second line, generate a csv that can be uploaded into google sheets. Generate the header row and the data for it only based on the topic. You are also given the number of columns and the number of rows to generate.
+Use comma (,) as a delimiter to separate each column. Don't use , inside a single row EVER.
 
 For example
 Input
@@ -15,11 +16,15 @@ No of Columns: 6
 No of Rows: 2
 
 Output
-Employee Salary Data
-First Name, Last Name, Employee ID, Department, Position, Salary
-John, Smith, 12345, IT, Manager, 80000
-Alice, Johnson, 67890, Sales, Associate, 50000
+{{ "title": "Employee Salaries", "data": [ {{ "first_name": "John", "last_name": "Smith", "employee_id": 12345, "department": "IT", "position": "Manager", "salary": 80000 }}, {{ "first_name": "Alice", "last_name": "Johnson", "employee_id": 23252, "department": "Sales", "position": "Associate", "salary": 80000 }} ]}}
 
+title -> The title of the dataset ( should be strictly less than 25 characters )
+data -> An array of objects where each object represents a piece of data. The array should be convertable to CSV format
+
+There are two objects in the data array because the number of rows given are 2
+There are 6 keys in each object in the data array because the number of rows given are 6
+
+Use the same key with same spelling and casing for each object in the data array.
 If you need to give a number for a column
 Write numbers with all zeroes, do not write numbers in words such as billion or millions. For example instead of 1 million or 1M, write the full number 1000000.
 If a column needs to contain numbers, only use numbers. Do not add any characters along with numbers. For example, instead of $80,000 use 80000`;
@@ -62,25 +67,19 @@ module.exports = async (req, res) => {
 
 
 const convertDataToWritableFormat = (result = '') => {
-    const lines = result.split('\n')
-    // each line has comma separated values
-    let output = [];
+    const { title, data = [] } = JSON.parse(result)
 
-    // first line is the title
-    const title = lines[0];
+    let headers = Object.keys(data[0])
+    headers = headers.map(header => {
+        return header.replace("_", "").replace("-", " ").toUpperCase()
+    })
 
-    // every line from second line is the data
-    lines.shift()
+    const dataRows = data.map(row => {
+        return Object.values(row)
+    })
 
-    for (let line of lines) {
-        const values = line.split(',').map(val => {
-            let data = val.trim()
-            return inferTypeAndConvert(data)
-        })
-        output = [...output, values]
-    }
-
-    return { title, output }
+    const output = [headers, ...dataRows];
+    return { title,  output }
 }
 
 const inferTypeAndConvert = data => {
