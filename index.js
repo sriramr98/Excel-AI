@@ -18,7 +18,7 @@ app.get('/', (req, res) => {
 
 app.post('/createSheet', validate(validators.createValidator) ,createSheet);
 
-app.post('/publishWork', publishWork);
+app.post('/publishWorkStructured', publishWork);
 
 app.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`)
